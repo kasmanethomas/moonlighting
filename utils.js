@@ -109,6 +109,23 @@ Codons = {
     "TTC": "F"
 };
 
+// Using the above, we can translate a gene in silico.
+// Note: This routine will honor stop codons. It returns only the amino acid sequence preceding the stop.
+translate = (g)=>{
+    let rcg = (g);
+    let codons = rcg.match(/.../g);
+    if (codons == null || codons.length < 1)
+        return "";
+    var rprotein = "";
+    codons.forEach(c=>{
+        rprotein += Codons[c];
+    });
+    
+    // If a stop codon occurred, just return the first translation product
+    rprotein = rprotein.split("*")[0];
+    return rprotein;
+};
+
 // Sum an array.
 sum = (ar)=>{
     let s = ar.reduce((s,item)=>s + item, 0);
