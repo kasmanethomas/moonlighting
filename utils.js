@@ -185,8 +185,10 @@ function Test(name, rx) {
 // Some Test objects that allow to find keywords in Fasta headers.
 pgrs = new Test("PE-PGRS",/PE-PGRS/g);
 ppe = new Test("PPE family",/PPE family/g);
-membrane = new Test("membrane",/[^s]membrane/g);
+
 // membrane not preceded by 'trans'
+membrane = new Test("membrane",/[^s]membrane/g);
+
 transmembrane = new Test("transmembrane",/transmembrane/g);
 efflux = new Test("efflux",/efflux/g);
 permease = new Test("permease",/permease/g);
@@ -242,7 +244,7 @@ getGeneName(0)
 The first argument is an array of tab-delimited data items in which the first column is the gene index
 (so for example, in Mtb, gene zero is dnaA) and the second column can be a gene's description from the 
 "protein=" part of the Fasta header. E.g., [protein=translation initiation factor IF-2] 
-See example further below.
+See example further below under ENRICHMENT ASSAY.
 
 The second arg is an array of Test objects (see definition further above).
 */
@@ -290,7 +292,7 @@ function enrichmentAssay(cb, fraction) {
     );
 
     // We look at enrichments in the top fraction
-    let er = enrichmentReport(genesSortedByMetric.slice(0, Math.floor(genes.length * fraction)), SpecialTestArray, 1);
+    let er = enrichmentReport(genesSortedByMetric.slice(0, Math.floor(genes.length * fraction)), SpecialTestArray);
     console.log("Fold\tE\t\tFunction (actual/possible)");
     console.log(er);
 }
@@ -299,6 +301,7 @@ function enrichmentAssay(cb, fraction) {
 enrichmentAssay( rny, .2 );
 
 In Mtb H37Rv, the result is:
+
 Fold	E		Function (actual/possible)
 4.67	0.000	PE-PGRS	56/60
 3.00	0.058	peptidoglycan	3/5
@@ -308,6 +311,90 @@ Fold	E		Function (actual/possible)
 1.67	0.488	efflux	1/3
 1.21	0.258	ribosomal protein	14/58
 1.02	0.500	transporter	17/83
+
+What we did was pass enrichmentAssay() an arg of rny, which means the callback is
+our rny() function, which gets the percent of codons meeting the pattern RNY (purine, any base, pyrimidine).
+The second arg, 0.2, means sort genes by the callback metric, and look in the top 20% for how many hits of interest
+were found by enrichmentReport() using the SpecialTestArray.
+*/
+
+/* generalReadout()
+   A utility function to show, in console, attributes of genes filtered by a regex.
+*/
+function generalReadout(rx, cbArray, precision) {
+    
+    let result = [];
+    genes.forEach((g,gi)=>{
+        // filter genes on rx
+        if (!legends[gi].match(rx))
+            return;
+        let thisGenesResult = [];
+        cbArray.forEach(cb=>{
+            let value = cb(gi);
+            if ( precision && !isNaN(value) && String(value).match(/\./) )
+                value = (1 * value).toFixed(precision);
+            thisGenesResult.push(value);
+        }
+        );
+        result.push(thisGenesResult.join('\t'));
+    }
+    );
+    return result;
+}
+
+/* EXAMPLE (using Mtb H37Rv genome)
+
+// some callbacks:
+getGeneDescriptor=(gi)=>getProteinName( legends[gi] );
+gi4=(gi)=>(gi + "    ").slice(0,4);
+
+// rnn() and getGeneName() were defined previously
+gr = generalReadout( moonlit, [ gi4, rnn, getGeneName,getGeneDescriptor], 4);
+
+// sort results by column 1
+gr.sort((a,b)=>b.split('\t')[1] - a.split('\t')[1]);
+
+// display it in console
+console.log("Gene\tRNN   \tName\tFunction");
+console.log( gr.join('\n') );
+
+Gene	RNN   	Name	Function
+444 	0.7394	groEL2	molecular chaperone GroEL
+3405	0.7222	groEL1	chaperonin GroEL
+355 	0.7013	dnaK	chaperone protein DnaK
+691 	0.6902	tuf	elongation factor Tu
+1027	0.6814	eno	enolase
+690 	0.6795	fusA1	elongation factor G
+1433	0.6794	gap	glyceraldehyde 3-phosphate dehydrogenase
+368 	0.6696	fba	fructose-bisphosphate aldolase
+1434	0.6586	pgk	phosphoglycerate kinase
+1435	0.6527	tpi	triosephosphate isomerase
+1828	0.6509	glcB	malate synthase
+3014	0.6472	iscS	cysteine desulfurase
+3000	0.6453	pfkA	6-phosphofructokinase
+436 	0.6432	sodC	superoxide dismutase
+1835	0.6358	gnd1	6-phosphogluconate dehydrogenase
+673 	0.6343	rpoB	DNA-directed RNA polymerase subunit beta
+1869	0.6341	glnA3	glutamine synthetase GlnA
+123 	0.6322	fusA2	elongation factor G
+1117	0.6246	gnd2	6-phosphogluconate dehydrogenase (decarboxylating)
+2415	0.6226	proA	gamma-glutamyl phosphate reductase
+3818	0.6180		phosphoglycerate mutase
+2018	0.6147	pfkB	6-phosphofructokinase PfkB
+2847	0.6114	glnA4	glutamine synthetase
+1336	0.6103	murI	glutamate racemase
+1461	0.6029	csd	cysteine desulfurase
+3827	0.5962	sodA	superoxide dismutase
+495 	0.5960	gpm1	2,3-bisphosphoglycerate-dependent phosphoglycerate mutase
+948 	0.5921	pgi	glucose-6-phosphate isomerase
+3785	0.5870	fbpA	diacylglycerol acyltransferase/mycolyltransferase Ag85A
+2206	0.5866	glnA1	glutamine synthetase
+1877	0.5859	fbpB	diacylglycerol acyltransferase/mycolyltransferase Ag85B
+3207	0.5686	gpm2	phosphoglycerate mutase
+132 	0.5660	fbpC	diacylglycerol acyltransferase/mycolyltransferase Ag85C
+2208	0.5503	glnA2	glutamine synthetase
+1979	0.5111	erm	23S rRNA (adenine(2058)-N(6))-methyltransferase Erm(37)
+
 */
 
 
