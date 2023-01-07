@@ -342,14 +342,16 @@ function generalReadout(rx, cbArray, precision) {
     return result;
 }
 
-/* EXAMPLE (using Mtb H37Rv genome)
+/* EXAMPLE (using Mtb H37Rv genome).
+
+List all moonlighting genes along with their codon-percent RNN values.
 
 // some callbacks:
 getGeneDescriptor=(gi)=>getProteinName( legends[gi] );
 gi4=(gi)=>(gi + "    ").slice(0,4);
 
 // rnn() and getGeneName() were defined previously
-gr = generalReadout( moonlit, [ gi4, rnn, getGeneName,getGeneDescriptor], 4);
+gr = generalReadout( moonlit, [ gi4, rnn, getGeneName, getGeneDescriptor], 4);
 
 // sort results by column 1
 gr.sort((a,b)=>b.split('\t')[1] - a.split('\t')[1]);
@@ -396,6 +398,68 @@ Gene	RNN   	Name	Function
 1979	0.5111	erm	23S rRNA (adenine(2058)-N(6))-methyltransferase Erm(37)
 
 */
+
+/* Get CDS-genome-wide RNN average and standard deviation (Mtb H37Rv):
+[average(genes.map((g,gi)=>rnn(gi))).toFixed(4),sd(genes.map((g,gi)=>rnn(gi))).toFixed(4)]
+(2) ['0.6051', '0.0536']
+*/
+
+// SHANNON ENTROPY
+shannonH = (f)=>(f == 0) ? 0 : -1 * f * Math.log(f);
+
+// Some vector routines. For vectors of any dimension.
+sizeOfVector = (v)=>Math.sqrt(sum(v.map(m=>m * m)));
+
+normalizeVector = (v)=>v.map(m=>m / sizeOfVector(v));
+
+dotProduct = (v1,v2)=>sum(v1.map((m,mi)=>v1[mi] * v2[mi]));
+
+function getGeneCodonRYEntropies(g) {
+    return [shannonH(CodonPercent(g, /[AG]../g)) + shannonH(CodonPercent(g, /[CT]../g)), shannonH(CodonPercent(g, /.[AG]./g)) + shannonH(CodonPercent(g, /.[CT]./g)), shannonH(CodonPercent(g, /..[AG]/g)) + shannonH(CodonPercent(g, /..[CT]/g))]
+}
+function getGeneCodonSWEntropies(g) {
+    return [shannonH(CodonPercent(g, /[GC]../g)) + shannonH(CodonPercent(g, /[AT]../g)), shannonH(CodonPercent(g, /.[GC]./g)) + shannonH(CodonPercent(g, /.[AT]./g)), shannonH(CodonPercent(g, /..[GC]/g)) + shannonH(CodonPercent(g, /..[AT]/g))]
+}
+
+// Make 2D vectors out of codon base entropies (using just bases 1 & 3).
+// First we'll make a vector out of RY entropies of bases 1 & 3.
+get2DVectorR1R3 = (gi)=>{
+    let ryH = getGeneCodonRYEntropies(genes[gi]);
+    return [ryH[0], ryH[2]];
+}
+// Now SW entropies for bases 1 & 3.
+get2DVectorS1S3 = (gi)=>{
+    let swH = getGeneCodonSWEntropies(genes[gi]);
+    return [swH[0], swH[2]];
+}
+
+// A function that gets R1R3 and S1S3 vectors, then gets the dot product of them:
+get13dotProduct=(gi)=>{
+    let v1=get2DVectorS1S3(gi); 
+    let v2=get2DVectorR1R3(gi);
+  return dotProduct(normalizeVector(v1),normalizeVector(v2));
+}
+
+// EXAMPLE
+// Use the get13dotProduct() function, negated, as an enrichment-metric callback:
+enrichmentAssay( (gi)=> -1 * get13dotProduct(gi), .2 )
+
+/* In Mtb H37Rv we get:
+Fold	E		Function (actual/possible)
+4.17	0.000	mycolate synthesis	10/12
+2.59	0.000	ribosomal protein	30/58
+2.58	0.000	PE-PGRS	31/60
+2.43	0.000	moonlighting	17/35
+1.82	0.056	esx	8/22
+1.78	0.011	permease	16/45
+1.67	0.488	release factor	1/3
+1.67	0.488	efflux	1/3
+1.11	0.434	fatty-acid synthesis	8/36
+1.10	0.325	transmembrane	27/123
+1.07	0.343	membrane	41/192
+1.03	0.500	PPE family	13/63
+*/
+
 
 
 
