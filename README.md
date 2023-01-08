@@ -35,11 +35,14 @@ If you run 'genes.length', you should see the number of genes of your genome in 
 If you run <code>console.log(legends[0])</code>, you should see the first Fasta header printed out on the console.
 
 <h2>What's in the files?</h2>
-<p>The utils.js file contains some handy functions like average(), sd() for Standard Deviation, etc., plus some interesting utilities like the CodonPercent() function, which takes a gene sequence and a regex for arguments.</p>
+<p>The <code>utils.js</code> file contains some handy functions like average(), sd() for Standard Deviation, etc., plus some interesting utilities like the CodonPercent() function, which takes a gene sequence and a regex for arguments.</p>
 
-<p>The hypergeometric.js file contains a handy routine for computing cumulative hypergeometric probabilities.</p>
+<p>The <code>hypergeometric.js</code> file contains a handy routine for computing cumulative hypergeometric probabilities.</p>
 
-<p>The pearson.js file contains a function that lets you obtain the correlation between values in two equal-length arrays.</p>
+<p>The <code>pearson.js</code> file contains a function that lets you obtain the correlation between values in two equal-length arrays.</p>
+
+<p>The <code>proximity.js</code> file contains routines that let you do enrichment experiments to find out what kinds of genes exist near moonlighting genes, on the genome in question. In other words, suppose you have an array of gene indexes for presumed moonlighting genes. Suppose you want to know: What kinds of genes are within plus or minus 5 genes of the moonlighters? It's easy enough to obtain the list of neighbor-genes, but the question, now, is: Do the neighbor genes over-represent certain functional categories? Are there a disproportionate number of cell-membrane genes, for example? Are there a disproportionate number of genes involved in secretion? To get a statistically meaningful answer to these sorts of questions requires careful analysis of the numbers, using hypergeometric probability analysis. To help with functional categories, we've gathered the names of genes associated with various GO (Gene Ontology) labels. See <code>proximity.js</code> for details.</p>
+
 
 <h2>What kinds of quick experiments can I do?</h2>
 <p>Suppose you've got E. coli's genome loaded and you want to know what percentage of genes use 'TGA' as a stop codon.</p>
