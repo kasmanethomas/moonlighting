@@ -318,6 +318,28 @@ The second arg, 0.2, means sort genes by the callback metric, and look in the to
 were found by enrichmentReport() using the SpecialTestArray.
 */
 
+/* reverseComplement()
+*/
+function reverseComplement(seq) {
+
+    var rc = {
+        T: "A",
+        A: "T",
+        G: "C",
+        C: "G",
+        t: "a",
+        a: "t",
+        g: "c",
+        c: "g",
+        n: "n",
+        N: "N"
+    };
+    var rev = seq.split("").reverse();
+    var result = rev.map(b=> (b in rc) ? rc[b] : b);
+    return result.join("");
+}
+
+
 /* generalReadout()
    A utility function to show, in console, attributes of genes filtered by a regex.
 */
