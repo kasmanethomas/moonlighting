@@ -5,10 +5,10 @@ The JavaScript code in this project will allow you to do some bioinformatic expl
 <p>All code is native plain-vanilla JavaScript. The code is meant to be run in the browser console. It can of course be adapted to run in a Node app or anywhere else, since it is generic JavaScript, but the workflow we recommend is just to load a Fasta CDS genome in a Chrome tab, then run code against it in the console.</p>
 
 <h2>What's in this project?</h2>
-This project consists of standalone plain-vanilla JavaScript functions designed to be run in a browser's "developer console." 
-Routines were tested in Chrome, but should work in other browsers as well. It's all plain ECMAScript2015 (browser JS) with no funky dependencies.
+<p>This project consists of standalone plain-vanilla JavaScript functions designed to be run in a browser's "developer console." 
+Routines were tested in Chrome, but should work in other browsers as well. It's all plain ECMAScript2015 (browser JS) with no funky dependencies.</p>
 
-We use this code to explore moonlighting genes of bacteria (hence the name of the project), but a lot of the code is general-purpose and will let you do other kinds of explorations.
+<p>We use this code to explore moonlighting genes of bacteria (hence the name of the project), but a lot of the code is general-purpose and will let you do other kinds of explorations.</p>
 
 <h2>How can I get started quickly?</h2>
 <p>The easiest way to run the code is just copy it to the console and hit Enter, which will load functions into memory. 
@@ -43,6 +43,8 @@ If you run <code>console.log(legends[0])</code>, you should see the first Fasta 
 
 <p>The <code>proximity.js</code> file contains routines that let you do enrichment experiments to find out what kinds of genes exist near moonlighting genes, on the genome in question. In other words, suppose you have an array of gene indexes for presumed moonlighting genes. Suppose you want to know: What kinds of genes are within plus or minus 5 genes of the moonlighters? It's easy enough to obtain the list of neighbor-genes, but the question, now, is: Do the neighbor genes over-represent certain functional categories? Are there a disproportionate number of cell-membrane genes, for example? Are there a disproportionate number of genes involved in secretion? To get a statistically meaningful answer to these sorts of questions requires careful analysis of the numbers, using hypergeometric probability analysis. To help with functional categories, we've gathered the names of genes associated with various GO (Gene Ontology) labels. See <code>proximity.js</code> for details.</p>
 
+<p>The code>antisenseORF.js</code> file contains a function that allows you to search a group of genes in antisense for putative open reading frames, then print (to the console) results as Fasta listings. Each listing has a descriptive header and the polypeptide translation of the region in question. A usage example is given at the bottom of the file.</p>
+
 
 <h2>What kinds of quick experiments can I do?</h2>
 <p>Suppose you've got E. coli's genome loaded and you want to know what percentage of genes use 'TGA' as a stop codon.</p>
@@ -51,14 +53,16 @@ If you run <code>console.log(legends[0])</code>, you should see the first Fasta 
 sum( genes.map(gene=>gene.slice( gene.length - 3 )=='TGA' ? 1:0) )/genes.length
 </pre>
 
-In E. coli, the answer gets printed to the console: <code>0.30580075662042877</code> Almost 31% of genes use TGA as a stop codon.
+In <i>E. coli</i>, the answer gets printed to the console: <code>0.30580075662042877</code> Almost 31% of genes use TGA as a stop codon.
 
-<p>If you load utils.js, you can make use of a function called CodonPercent(). Let's use it to determine the percentage of codons that begin with a purine:</p>
+<p>If you load <code>utils.js</code>, you can make use of a function called CodonPercent(). Let's use it to determine the percentage of codons that begin with a purine:</p>
 <pre>
 average( genes.map(gene=> CodonPercent(gene, /[AG]../g) ))
 // 0.6004191707440053
 </pre>
 <p>In E. coli, 60% of codons begin with A or G.</p>
+
+<p>The <code>utils.js</code> file contains other examples of console experiments you can run against any genome. Some of the other files also contain useful examples.
 
 
 
