@@ -427,7 +427,7 @@ Gene	RNN   	Name	Function
 */
 
 // SHANNON ENTROPY
-shannonH = (f)=>(f == 0) ? 0 : -1 * f * Math.log(f);
+shannonH = (f)=>(f == 0) ? 0 : -1 * f * Math.log2(f);
 
 // Some vector routines. For vectors of any dimension.
 sizeOfVector = (v)=>Math.sqrt(sum(v.map(m=>m * m)));
