@@ -56,6 +56,7 @@ function getFastaRun( moonies, regexArray, offsetToStartCodon, aaMinLength ) {
     // Save the world here
     let ar = [];
    
+    // A global from which results can be inspected later if desired:
     proteins = {};
 
     regexArray.forEach(regex=>{
